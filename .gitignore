@@ -1,0 +1,6 @@
+.env
+/node_modules
+Employee-Managment/node_modules
+Employee-Managment/.env
+server/node_modules
+server/.env
