@@ -7,6 +7,7 @@ const fields = {
   position: '',
   age: ''
 };
+
 export const App = () => {
   const [dataForm, setdataForm] = useState(fields);
 
