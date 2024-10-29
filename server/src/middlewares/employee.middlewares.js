@@ -16,3 +16,8 @@ export const createEmployee = async (req, res) => {
     res.status(500).json({ message: 'Error al crear empleado' });
   }
 };
+
+
+export const showEmployees = (req, res) => {
+  res.status(201).json({message: "Mostrar empleados"});
+}

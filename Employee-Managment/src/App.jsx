@@ -1,4 +1,6 @@
 import { useState } from "react";
+import {useRequest} from './customHooks/useRequest';
+import {Employee} from './endpoints/employees/employees';
 
 const fields = {
   name: '',
@@ -10,19 +12,29 @@ const fields = {
 
 export const App = () => {
   const [dataForm, setdataForm] = useState(fields);
+  // Llamando a la función useRequest
+  const {data, error, loading, makeRequest} = useRequest(Employee.createEmployee);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setdataForm({
       ...dataForm,
-      [name]: value
+      [name]: name === 'age' || name === 'ageOld' ? parseInt(value) || '' : value
     });
-    console.log('data: ', dataForm);
+  };  
+
+  const handleRequestData = async () => {
+    try {
+      await makeRequest({ body: dataForm });
+      console.log('Accion de handleRequestData');
+    } catch (error) {
+      console.log("Error al guardar datos: ", error);
+    }
+
   };
 
-  const handleRequestData = () => {
-    console.log('Datos enviados: ', dataForm);
-  };
+  if (error) return <div>{error}</div>;
+  if (loading) return <div>Cargando...</div>;
 
   return (
     <div className="app">
@@ -34,6 +46,8 @@ export const App = () => {
       <label>Años: <input name="age" type="number" onChange={handleChange}/></label>
       <button onClick={handleRequestData}>Guardar datos</button>
     </div>
+
+    {data && <div>{JSON.stringify(data)}</div>}
     </div>
   );
 };

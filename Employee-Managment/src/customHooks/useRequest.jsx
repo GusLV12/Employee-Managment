@@ -1,31 +1,30 @@
-import {useEffect, useState} from 'react';
+import { useState, useCallback } from 'react';
 import axios from 'axios';
 
-export const useRequest = ({url, method, body = null, headers = null}) => {
-  const [data, setdata] = useState(null);
+export const useRequest = ({ url, method }) => {
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const makeRequest = useCallback(
+    async ({ body = null, headers = null } = {}) => {
+      setLoading(true);
       try {
         const response = await axios({
           url,
           method,
           data: body,
-          headers
+          headers,
         });
-        setdata(response.data);
-
+        setData(response.data);
       } catch (error) {
         setError(error);
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [url, method]
+  );
 
-    fetchData();
-  },[url, method, body, headers]);
-
-  return {data, error, loading};
+  return { data, error, loading, makeRequest };
 };
