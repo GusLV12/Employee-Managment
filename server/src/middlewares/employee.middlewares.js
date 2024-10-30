@@ -17,7 +17,37 @@ export const createEmployee = async (req, res) => {
   }
 };
 
+export const showEmployees = async (req, res) => {
+  const query = `SELECT * FROM employee`;
+  try {
+    const [rows] = await pool.query(query);
 
-export const showEmployees = (req, res) => {
-  res.status(201).json({message: "Mostrar empleados"});
+    if(rows.length === 0){
+      throw new Error('No hay empleados');
+    }
+
+    res.status(200).json(rows);
+
+  } catch (error) {
+    console.error('Error al mostrar empleados: ', error.message);
+  }
 }
+
+export const updateEmployee = async (req, res) => {
+  const { id, name, ageOld, country, position, age } = req.body;
+  
+  const query = `UPDATE employee SET name=?, ageOld=?, country=?, position=?, age=? WHERE id = ?`;
+  
+  try {
+    const [result] = await pool.query(query, [name, ageOld, country, position, age, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+    }
+
+    res.status(200).json({ message: 'Empleado actualizado', id });
+  } catch (error) {
+    console.error('Error al actualizar empleado: ', error);
+    res.status(500).json({ message: 'Error al actualizar empleado' });
+  }
+};
