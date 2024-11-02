@@ -51,3 +51,22 @@ export const updateEmployee = async (req, res) => {
     res.status(500).json({ message: 'Error al actualizar empleado' });
   }
 };
+
+export const deleteEmployee = async (req, res) => {
+  const { id } = req.body;
+  
+  const query = `DELETE FROM employee WHERE id = ?`;
+  
+  try {
+    const [result] = await pool.query(query, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+    }
+
+    res.status(200).json({ message: 'Empleado eliminado', id });
+  } catch (error) {
+    console.error('Error al eliminar empleado: ', error);
+    res.status(500).json({ message: 'Error al eliminar empleado' });
+  }
+}

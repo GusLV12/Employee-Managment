@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRequest } from './customHooks/useRequest';
 import { Employee } from './endpoints/employees/employees';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 const fields = {
   name: '',
@@ -18,6 +19,8 @@ export const App = () => {
   
   const { data: dataShow, makeRequest: makeRequestShow } = useRequest(Employee.showEmployees);
   const { data: dataCreate, error: errorCreate, loading: loadingCreate, makeRequest: makeRequestCreate } = useRequest(Employee.createEmployee);
+  const {data: updateEmployee, makeRequest: makeRequestUpdateEmployee} = useRequest(Employee.updateEmployee);
+  const {data: deleteEmployee, makeRequest: makeRequestDeleteEmployee} = useRequest(Employee.deleteEmployee);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +34,11 @@ export const App = () => {
     try {
       await makeRequestCreate({ body: dataForm });
       console.log('Acción de handleRequestData');
+      Swal.fire({
+        title: "Empleado creado.",
+        text: "Guardado con éxito.",
+        icon: "success"
+      });
     } catch (error) {
       console.log("Error al guardar datos: ", error);
     }
@@ -40,14 +48,53 @@ export const App = () => {
     await makeRequestShow();
   };
 
+  const handleRequestUpdateEmployee = async () => {
+    try {
+      await makeRequestUpdateEmployee({ body: dataForm });
+      console.log('Empleado actualizado: ');
+      setEditFiels(false);
+      setdataForm(fields);
+      Swal.fire({
+        title: "Empleado actualizado.",
+        text: "Guardado con éxito.",
+        icon: "success"
+      });
+    } catch (error) {
+      console.error('Error al actualizar empleado: ', error);
+    }
+  };
+
   const handleEditEmployee = (employee) => {
-    setEditFiels(!editFiels);
+    setEditFiels(true);
     setdataForm(employee);
+  };
+
+  const handleDeleteEmployee = async (id) => {
+    try {
+      await makeRequestDeleteEmployee({ body: { id } });
+      console.log('Empleado eliminado: ', id);
+      Swal.fire({
+        title: "Empleado eliminado.",
+        text: "Eliminado con éxito.",
+        icon: "success"
+      });
+    } catch (error) {
+      console.error('Error al eliminar empleado: ', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditFiels(false);
+    setdataForm(fields);
   };
 
   useEffect(() => {
     handleRequestShow();
-  }, [dataCreate]);
+  },[]);
+
+  useEffect(() => {
+    handleRequestShow();
+  }, [dataCreate, updateEmployee, deleteEmployee]);
 
   useEffect(() => {
     if (dataShow) setlistEmployees(dataShow);
@@ -85,10 +132,10 @@ export const App = () => {
               <input name="age" value={dataForm.age} type="number" className="form-control" onChange={handleChange} />
             </div>
             {editFiels 
-            ? (<>
-                <button type="button" className="btn btn-success" onClick={handleRequestData}>Editar datos</button>
-                <button type="button" className="btn btn-danger" onClick={handleRequestData}>Cancelar</button>
-              </>)
+            ? (<div className="d-flex gap-3 justify-content-center">
+                <button type="button" className="btn btn-success" onClick={handleRequestUpdateEmployee}>Editar datos</button>
+                <button type="button" className="btn btn-danger" onClick={handleCancelEdit}>Cancelar</button>
+              </div>)
             : <button type="button" className="btn btn-success" onClick={handleRequestData}>Guardar datos</button>
             }
           </form>
@@ -112,7 +159,7 @@ export const App = () => {
                     <button className="btn btn-success" onClick={() => handleEditEmployee(employee)}>
                       <i className="fas fa-edit"></i> Editar
                     </button>
-                    <button className="btn btn-danger">
+                    <button className="btn btn-danger" onClick={() => handleDeleteEmployee(employee.id)}>
                       <i className="fas fa-trash-alt"></i> Eliminar
                     </button>
                   </div>

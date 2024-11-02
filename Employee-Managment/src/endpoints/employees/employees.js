@@ -8,5 +8,13 @@ export const Employee = {
   showEmployees: {
     url: `${apiURL}/api/show`,
     method: 'GET'
+  },
+  updateEmployee: {
+    url: `${apiURL}/api/update`,
+    method: 'PUT'
+  },
+  deleteEmployee: {
+    url: `${apiURL}/api/delete`,
+    method: 'DELETE'
   }
   };
